@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client"
 
 const Header = () => {
     return (
-        <p className="text-green-600">Header component</p>
+        <p className="text-green-700">Header component</p>
     )
 }
 
