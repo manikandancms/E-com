@@ -6,7 +6,7 @@ import ShimmerLayout from '../shimmer/Shimmer';
 
 const productData = [
   // Featured/Bestseller Card - Add this specific card
- 
+
   {
     id: "1",
     images: [
@@ -295,7 +295,7 @@ const ProductCard = ({ id, image, images, title, price, rating, offer, total_no_
           <img className="mx-auto h-full dark:hidden rounded-lg" src={displayImage} alt={title} />
           <img className="mx-auto hidden h-full dark:block rounded-lg" src={displayImage} alt="dark-mode" />
         </Link>
-        
+
         {/* Encouraging Badges Overlay */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           {badges.map((badge, index) => (
@@ -305,25 +305,25 @@ const ProductCard = ({ id, image, images, title, price, rating, offer, total_no_
           ))}
         </div>
       </div>
-      
+
       <div className="pt-6">
         <div className="mb-4 flex items-center justify-between gap-4">
           <span className="me-2 rounded bg-primary-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-primary-900 dark:text-primary-300">
             Offer up to {offer}%
           </span>
         </div>
-        
+
         <a href="#" className="text-lg font-semibold leading-tight text-gray-900 hover:underline dark:text-white">
           {title}
         </a>
-        
+
         {/* Encouraging Subtitle */}
         <p className="text-sm text-green-600 font-medium mt-1">
-          {ratingNum >= 4.8 ? "🔥 Customers love this!" : 
-           ratingNum >= 4.5 ? "⭐ Highly recommended!" : 
-           "✨ Great value for money!"}
+          {ratingNum >= 4.8 ? "🔥 Customers love this!" :
+            ratingNum >= 4.5 ? "⭐ Highly recommended!" :
+              "✨ Great value for money!"}
         </p>
-        
+
         <div className="mt-2 flex items-center gap-2">
           {/* Dynamic rating stars */}
           {Array.from({ length: filledStars }).map((_, idx) => (
@@ -367,13 +367,13 @@ const ProductCard = ({ id, image, images, title, price, rating, offer, total_no_
           <p className="text-sm font-medium text-gray-900 dark:text-white">{rating}</p>
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400">({total_no_user})</p>
         </div>
-        
+
         <ul className="mt-2 flex items-center gap-4">
           <li className="flex items-center gap-2">
             🚚 <span className="text-sm font-medium text-green-500 dark:text-gray-400">Shipping Within 4 Hours </span>
           </li>
         </ul>
-        
+
         <div className="mt-4 flex items-center justify-between gap-4">
           <p className="text-2xl font-extrabold leading-tight text-gray-900 dark:text-white">{price}</p>
           <Link

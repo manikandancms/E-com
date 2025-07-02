@@ -11,18 +11,7 @@ const Header = () => {
   const Data = useOnlineStatus()
 
 
-  // Online status (replace with useOnlineStatus() if you have a custom hook)
-  // const [isOnline, setIsOnline] = useState(navigator.onLine);
-  // React.useEffect(() => {
-  //   const handleOnline = () => setIsOnline(true);
-  //   const handleOffline = () => setIsOnline(false);
-  //   window.addEventListener('online', handleOnline);
-  //   window.addEventListener('offline', handleOffline);
-  //   return () => {
-  //     window.removeEventListener('online', handleOnline);
-  //     window.removeEventListener('offline', handleOffline);
-  //   };
-  // }, []);
+ 
 
   return (
     <div className="2xl:container mx-auto mt-1 ">
