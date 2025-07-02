@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import useOnlineStatus from "../Custom_Hooks/UseOnlineStatus";
+import useOnlineStatus from "../Custom_Hooks/UseOnlineStatus"; 
 // If you have a custom hook, import it. Otherwise, use navigator.onLine
 // import useOnlineStatus from "../../hooks/useOnlineStatus";
 
