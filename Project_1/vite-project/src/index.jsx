@@ -2,14 +2,14 @@ import "./style.css";
 
 import ReactDom from "react-dom/client";
 import Footer from "./components/Footer/Footer";
-import Header from "./Components/Header/Header";
+import Header from "./components/Header/Header";
 import ProductLayout from "./components/ProductLayout.jsx/ProductLayout";
 import Value from "./components/Valule_Update/Valueupdate";
 import Sample from "./components/Hooks/basichook";
 import Comment from "./components/Comment/Comment";
 import ProductDetails from "./components/ProductDetails/ProductDetails";
 import HeroSection from "./components/hero/HeroSection";
-import ImageCompo from "./components/ImageComponent/ImageCoponents";
+import ImageCompo from "./ImageComponent/ImageCoponents";
 
 
 import {

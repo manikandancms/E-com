@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import useOnlineStatus from "../Custom_Hooks/UseOnlineStatus"; 
+import useOnlineStatus from "../Custom_Hooks/UseOnlineStatus";
 // If you have a custom hook, import it. Otherwise, use navigator.onLine
 // import useOnlineStatus from "../../hooks/useOnlineStatus";
 
@@ -11,7 +11,18 @@ const Header = () => {
   const Data = useOnlineStatus()
 
 
- 
+  // Online status (replace with useOnlineStatus() if you have a custom hook)
+  // const [isOnline, setIsOnline] = useState(navigator.onLine);
+  // React.useEffect(() => {
+  //   const handleOnline = () => setIsOnline(true);
+  //   const handleOffline = () => setIsOnline(false);
+  //   window.addEventListener('online', handleOnline);
+  //   window.addEventListener('offline', handleOffline);
+  //   return () => {
+  //     window.removeEventListener('online', handleOnline);
+  //     window.removeEventListener('offline', handleOffline);
+  //   };
+  // }, []);
 
   return (
     <div className="2xl:container mx-auto mt-1 ">
