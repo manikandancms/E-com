@@ -1,10 +1,24 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import UserContext from "../Store/UserContext";
+import ShimmerLayout from "../shimmer/Shimmer.jsx";
 
 const Footer = () => {
   const data = useContext(UserContext)
+  const [isLoading, setIsLoading] = useState(true);
 
-  
+  useEffect(() => {
+    // Simulate loading time
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <ShimmerLayout />;
+  }
+
   return (
     <div className="2xl:container mx-auto mt-10">
       <div className="w-full mx-auto grid grid-cols-1 bg-black rounded-t-lg">

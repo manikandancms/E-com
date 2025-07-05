@@ -1,12 +1,18 @@
 import { useParams } from "react-router-dom";
 import { productData, vegetableData, groceryData } from "../ProductLayout.jsx/ProductLayout.jsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css';
+import Cardone from "../Custom_Hooks/Card.jsx";
+
 
 const ProductDetails = () => {
   const { id } = useParams();
   const [quantity, setQuantity] = useState(1);
+
+  // Get context data once with null check
+  const { cart = [], addItemCard = () => {}, updateItemQuantity = () => {} } = Cardone();
+  console.log("Cart context:", { cart, addItemCard });
 
   // Find product from datasets
   const product =
@@ -18,23 +24,61 @@ const ProductDetails = () => {
     return <div className="text-center text-red-500 mt-20 text-xl">Product not found.</div>;
   }
 
-  // Multiple images support
+  // Check if product is already in cart and get its current quantity
+  useEffect(() => {
+    const cartItem = cart.find(item => item.id === String(product.id));
+    if (cartItem) {
+      setQuantity(cartItem.quantity || 1);
+    } else {
+      setQuantity(1);
+    }
+  }, [cart, product.id]);
+
+  // Handle quantity changes
+  const handleQuantityChange = (newQuantity) => {
+    if (newQuantity <= 0) {
+      setQuantity(1);
+    } else {
+      setQuantity(newQuantity);
+    }
+  };
+
+  // Handle add to cart with quantity
+  const handleAddToCart = () => {
+    const itemToAdd = {
+      ...product,
+      id: String(product.id), // Ensure ID is a string
+      quantity: quantity
+    };
+    addItemCard(itemToAdd);
+    console.log("Added to cart:", itemToAdd);
+  };
+
+  // Multiple images support with null check
   const images = Array.isArray(product.images) && product.images.length > 0
     ? product.images
-    : [product.image];
+    : [product.image || ''];
 
-  const [mainImage, setMainImage] = useState(images[0]);
+  const [mainImage, setMainImage] = useState(images[0] || '');
 
-  // Star rating logic
+  // Update main image when product changes (when navigating between products)
+  useEffect(() => {
+    const newImages = Array.isArray(product.images) && product.images.length > 0
+      ? product.images
+      : [product.image || ''];
+    setMainImage(newImages[0] || '');
+  }, [product.id, product.images, product.image]);
+
+  // Star rating logic with null checks
   const maxStars = 5;
-  const ratingValue = Number(product.rating);
+  const ratingValue = Number(product.rating) || 0;
   const filledStars = Math.floor(ratingValue);
   const hasHalfStar = ratingValue - filledStars >= 0.25 && ratingValue - filledStars < 0.75;
   const emptyStars = maxStars - filledStars - (hasHalfStar ? 1 : 0);
 
-  // Price and offer
-  const priceNumber = Number(product.price.replace(/[^0-9.-]+/g, ""));
-  const offer = Number(product.offer);
+  // Price and offer with null checks
+  const priceNumber = Number((product.price || '0').replace(/[^0-9.-]+/g, "")) || 0;
+  const offer = Number(product.offer) || 0;
   const oldPrice = offer ? (priceNumber / (1 - offer / 100)).toFixed(0) : null;
 
   // Description
@@ -93,7 +137,7 @@ const ProductDetails = () => {
               <div className="flex items-center gap-1">
                 {Array.from({ length: filledStars }).map((_, idx) => (
                   <svg key={idx} className="w-5 h-5 text-yellow-300" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M13.849 4.22c-.684-1.626-3.014-1.626-3.698 0L8.397 8.387..." />
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                 ))}
                 {hasHalfStar && (
@@ -104,12 +148,12 @@ const ProductDetails = () => {
                         <stop offset="50%" stopColor="#d1d5db" />
                       </linearGradient>
                     </defs>
-                    <path d="M13.849 4.22c-..." />
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                 )}
                 {Array.from({ length: emptyStars }).map((_, idx) => (
                   <svg key={idx} className="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M13.849 4.22c-..." />
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                 ))}
               </div>
@@ -134,22 +178,34 @@ const ProductDetails = () => {
               <span className="text-gray-600">↩️ {returnPolicy}</span>
             </div>
 
-            {/* Quantity Input */}
+            {/* Quantity Controls */}
             <div className="mt-6 flex items-center gap-4">
-              <label htmlFor="quantity" className="text-sm font-medium text-gray-700 dark:text-gray-300">Quantity:</label>
-              <input
-                id="quantity"
-                type="number"
-                min="1"
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-                className="w-16 px-2 py-1 border border-gray-300 rounded"
-              />
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Quantity:</label>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleQuantityChange(quantity - 1)}
+                  className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm transition-colors duration-200"
+                >
+                  -
+                </button>
+                <span className="text-lg font-medium min-w-[30px] text-center text-gray-900 dark:text-white">
+                  {quantity}
+                </span>
+                <button
+                  onClick={() => handleQuantityChange(quantity + 1)}
+                  className="w-8 h-8 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center text-sm transition-colors duration-200"
+                >
+                  +
+                </button>
+              </div>
             </div>
 
             {/* Action Buttons */}
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <button className="flex-1 py-4 px-8 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full shadow-lg text-lg">
+              <button 
+                onClick={handleAddToCart}
+                className="flex-1 py-4 px-8 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full shadow-lg text-lg"
+              >
                 Add to Cart
               </button>
               <button className="flex-1 py-4 px-8 bg-green-600 hover:bg-green-700 text-white font-bold rounded-full shadow-lg text-lg">

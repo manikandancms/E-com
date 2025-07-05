@@ -1,21 +1,115 @@
-import React, {  useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import React, {  useContext, useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import useOnlineStatus from "../Custom_Hooks/UseOnlineStatus";
 import UserContext from "../Store/UserContext";
+import Cardone from "../Custom_Hooks/Card";
+import ShimmerLayout from "../shimmer/Shimmer.jsx";
 
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [cartPosition, setCartPosition] = useState({ x: -100, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const toggleMenu = () => setMenuOpen(prev => !prev);
+  const toggleCart = () => setCartOpen(prev => !prev);
+  const navigate = useNavigate();
+  const cartRef = useRef(null);
+  const cartDropdownRef = useRef(null);
 
   const Data = useOnlineStatus()
 
   const data = useContext(UserContext)
 
+  const { cart = [], clearCart, removeItemFromCart, updateItemQuantity } = Cardone();
   
+  // Debug cart data
+  console.log("Header cart data:", cart);
+  
+  // Calculate cart totals
+  const totalItems = cart.reduce((total, item) => total + (Number(item?.quantity) || 1), 0);
+  const totalPrice = cart.reduce((total, item) => {
+    const price = Number((item?.price || '0').replace(/[^0-9.-]+/g, "")) || 0;
+    const quantity = Number(item?.quantity) || 1;
+    return total + (price * quantity);
+  }, 0);
 
+  // Handle quantity changes
+  const handleQuantityChange = (itemId, newQuantity) => {
+    if (newQuantity <= 0) {
+      removeItemFromCart(itemId);
+    } else {
+      updateItemQuantity(itemId, newQuantity);
+    }
+  };
 
+  // Close cart when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (cartRef.current && !cartRef.current.contains(event.target)) {
+        setCartOpen(false);
+      }
+    };
 
+    if (cartOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [cartOpen]);
+
+  // Drag functionality for cart dropdown
+  const handleMouseDown = (e) => {
+    if (e.target.closest('.cart-content')) return; // Don't drag when clicking on cart content
+    setIsDragging(true);
+    const rect = cartDropdownRef.current.getBoundingClientRect();
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    
+    const newX = e.clientX - dragOffset.x;
+    const newY = e.clientY - dragOffset.y;
+    
+    setCartPosition({ x: newX, y: newY });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, dragOffset]);
+
+  useEffect(() => {
+    // Simulate loading time
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <ShimmerLayout />;
+  }
 
   return (
     <div className="2xl:container mx-auto mt-1 ">
@@ -29,7 +123,7 @@ const Header = () => {
             />
 
             {/* Online Status */}
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-2 px-5">
               <span
                 className={`h-3 w-3 rounded-full ${
                   Data ? "bg-green-400 animate-none" : "bg-red-500"
@@ -37,21 +131,15 @@ const Header = () => {
               ></span>
               <span
                 className={`text-sm font-medium transition-all duration-300 ease-in-out ${
-                  Data ? "text-green-400" : "text-red-400"
+                  Data ? "text-green-400  " : "text-red-400"
                 }`}
               >
                 {Data ? "Online" : "Offline"}
 
-                <span className={"text-green-400"}>{data.whichFor} </span>
-                  
-               
+                <span className={"text-green-400  px-5"}>{data.whichFor} </span>
               </span>
             </span>
           </div>
-
- 
-
-          
 
           {/* Mobile Menu Icon (only when menu is closed) */}
           <div className="md:hidden flex gap-2 items-center">
@@ -104,12 +192,12 @@ const Header = () => {
               </svg>
             </div>
           )}
+          
           {/* Mobile and desktop nav links */}
           <>
             {[
               { label: "Home", to: "/" },
               { label: "Products", to: "/products" },
-              { label: "🛒 My Card", to: "/contact" },
               { label: "About", to: "/comment" }
             ].map((item) => (
               <Link
@@ -122,11 +210,159 @@ const Header = () => {
               </Link>
             ))}
 
-            {/* Online status indicator
-          <span className="ml-4 text-lg text-white hover:text-slate-200">
-            {isOnline ? "🟢 Online" : "🔴 Offline"}
-          </span> */}
+            {/* Cart Icon with Dropdown */}
+            <div className="relative" ref={cartRef}>
+              <button
+                onClick={toggleCart}
+                className="text-white hover:text-slate-300 hover:scale-125 transition-transform duration-500 cursor-pointer text-sm font-medium flex items-center gap-2 border-2 border-transparent hover:border-white rounded px-2 py-1"
+              >
+                🛒 My Cart
+                {totalItems > 0 && (
+                  <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
 
+              {/* Cart Dropdown */}
+              {cartOpen && (
+                <div 
+                  ref={cartDropdownRef}
+                  className="fixed w-80 bg-white border-2 border-blue-500 rounded-lg shadow-xl z-[9999] max-h-96 overflow-y-auto cursor-move"
+                  style={{ 
+                    left: cartPosition.x, 
+                    top: cartPosition.y,
+                    transform: isDragging ? 'scale(1.02)' : 'scale(1)',
+                    transition: isDragging ? 'none' : 'all 0.2s ease-in-out'
+                  }}
+                  onMouseDown={handleMouseDown}
+                >
+                  {/* Drag Handle */}
+                  <div className="bg-blue-500 text-white px-4 py-2 rounded-t-lg cursor-move flex justify-between items-center">
+                    <span className="text-sm font-medium">🖱️ Drag to move cart</span>
+                    <button
+                      onClick={() => setCartOpen(false)}
+                      className="text-white hover:text-gray-200 text-xl font-bold"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="p-4 cart-content">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold text-gray-800">Shopping Cart</h3>
+                    </div>
+
+                    {cart.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-gray-500">Your cart is empty</p>
+                      </div>
+                    ) : (
+                      <>
+                        {/* Cart Items */}
+                        <div className="space-y-3 mb-4">
+                          {cart.map((item, index) => (
+                            <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                              <img
+                                src={item.image || item.images?.[0] || ''}
+                                alt={item.title}
+                                className="w-12 h-12 object-cover rounded"
+                              />
+                              <div className="flex-1">
+                                <h4 className="font-medium text-sm text-gray-800 truncate">
+                                  {item.title}
+                                </h4>
+                                <p className="text-sm text-gray-600">
+                                  {item.price}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  ID: {item.id}
+                                </p>
+                                
+                                {/* Quantity Controls */}
+                                <div className="flex items-center gap-2 mt-2">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleQuantityChange(item.id, (item.quantity || 1) - 1);
+                                    }}
+                                    className="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                                  >
+                                    -
+                                  </button>
+                                  <span className="text-sm font-medium min-w-[20px] text-center bg-white px-2 py-1 rounded border">
+                                    {item.quantity || 1}
+                                  </span>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleQuantityChange(item.id, (item.quantity || 1) + 1);
+                                    }}
+                                    className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-green-600 transition-colors"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                                
+                                {/* Product Details Link */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    console.log("Navigating to product:", item.id, item.title);
+                                    if (item.id) {
+                                      navigate(`/products/${item.id}`);
+                                      setCartOpen(false);
+                                    } else {
+                                      console.error("No product ID found:", item);
+                                    }
+                                  }}
+                                  className="text-blue-600 hover:text-blue-800 text-xs underline mt-1"
+                                >
+                                  View Product Details
+                                </button>
+                              </div>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeItemFromCart(item.id);
+                                }}
+                                className="text-red-500 hover:text-red-700 text-sm font-bold"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Cart Summary */}
+                        <div className="border-t pt-4">
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="font-medium">Total Items:</span>
+                            <span className="font-bold">{totalItems}</span>
+                          </div>
+                          <div className="flex justify-between items-center mb-4">
+                            <span className="font-medium">Total Price:</span>
+                            <span className="font-bold text-green-600">${totalPrice.toFixed(2)}</span>
+                          </div>
+                          
+                          {/* Action Buttons */}
+                          <div className="flex gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                clearCart();
+                              }}
+                              className="w-full bg-red-500 text-white py-2 px-4 rounded text-sm hover:bg-red-600 transition-colors"
+                            >
+                              Clear Cart
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </>
         </div>
       </div>

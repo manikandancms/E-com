@@ -18,6 +18,7 @@ import { Children } from "react";
 import Error1 from "./components/Error/Error1";
 import ComponentA from "./components/DemoComponents/ComponentA";
 import UserContext from "./components/Store/UserContext";
+import CardProvider from "./components/Store/UseCard";
 
 
 
@@ -32,15 +33,18 @@ const App = () => {
   return (
 
     <>
+  <CardProvider>
 
     <UserContext.Provider value = {{academicYear: "2025-2026", whichFor: " E-Commerce"}}>
       <Header />
       
      <Outlet/>
+      
 
       <Footer />
+        </UserContext.Provider>
 
-      </UserContext.Provider>
+   </CardProvider>
     
 
     

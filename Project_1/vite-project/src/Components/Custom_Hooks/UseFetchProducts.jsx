@@ -7,7 +7,7 @@ const UseFetchProducts = () => {
     // Simulate data fetching delay
     setTimeout(() => {
       setIsLoading(false);
-    }, 500); // Optional loading delay
+    }, 600); // Optional loading delay
   }, []);
 
   return { isLoading };
