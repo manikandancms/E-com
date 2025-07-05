@@ -17,6 +17,7 @@ import {
 import { Children } from "react";
 import Error1 from "./components/Error/Error1";
 import ComponentA from "./components/DemoComponents/ComponentA";
+import UserContext from "./components/Store/UserContext";
 
 
 
@@ -29,17 +30,17 @@ import ComponentA from "./components/DemoComponents/ComponentA";
 
 const App = () => {
   return (
+
     <>
+
+    <UserContext.Provider value = {{academicYear: "2025-2026", whichFor: " E-Commerce"}}>
       <Header />
-{/* 
-      if (path==="/" retrun <Home/>) 
-      if (path==="/counter" retrun <Value/>)
-        if (path==="/comment" retrun <Comment/>)
-          if (path==="/demo" retrun <Sample/>)  */}
       
      <Outlet/>
 
       <Footer />
+
+      </UserContext.Provider>
     
 
     

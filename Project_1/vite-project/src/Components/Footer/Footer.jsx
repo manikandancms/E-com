@@ -1,4 +1,10 @@
+import { useContext } from "react";
+import UserContext from "../Store/UserContext";
+
 const Footer = () => {
+  const data = useContext(UserContext)
+  console.log(data);
+  
   return (
     <div className="2xl:container mx-auto mt-10">
       <div className="w-full mx-auto grid grid-cols-1 bg-black rounded-t-lg">
@@ -23,7 +29,8 @@ const Footer = () => {
             Address:
           </p>
           <p className="font-[Poppins] font-normal text-[14px] leading-[30px] text-white">
-            123 Ayur Vigyan Nagar, Chennai, Tamil Nadu, India.
+            123 Ayur Vigyan Nagar, Chennai, Tamil Nadu, India. <br />
+            All Rights is Reserved by Clicker Corporate - {data.academicYear}
           </p>
         </div>
       </div>

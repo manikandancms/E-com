@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, {  useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import useOnlineStatus from "../Custom_Hooks/UseOnlineStatus";
-// If you have a custom hook, import it. Otherwise, use navigator.onLine
-// import useOnlineStatus from "../../hooks/useOnlineStatus";
+import UserContext from "../Store/UserContext";
+
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -10,19 +10,12 @@ const Header = () => {
 
   const Data = useOnlineStatus()
 
+  const data = useContext(UserContext)
+  console.log(data);
+  
 
-  // Online status (replace with useOnlineStatus() if you have a custom hook)
-  // const [isOnline, setIsOnline] = useState(navigator.onLine);
-  // React.useEffect(() => {
-  //   const handleOnline = () => setIsOnline(true);
-  //   const handleOffline = () => setIsOnline(false);
-  //   window.addEventListener('online', handleOnline);
-  //   window.addEventListener('offline', handleOffline);
-  //   return () => {
-  //     window.removeEventListener('online', handleOnline);
-  //     window.removeEventListener('offline', handleOffline);
-  //   };
-  // }, []);
+
+
 
   return (
     <div className="2xl:container mx-auto mt-1 ">
@@ -39,7 +32,7 @@ const Header = () => {
             <span className="flex items-center gap-2">
               <span
                 className={`h-3 w-3 rounded-full ${
-                  Data ? "bg-green-400 animate-pulse" : "bg-red-500"
+                  Data ? "bg-green-400 animate-none" : "bg-red-500"
                 }`}
               ></span>
               <span
@@ -48,6 +41,10 @@ const Header = () => {
                 }`}
               >
                 {Data ? "Online" : "Offline"}
+
+                <span className={"text-green-400"}>{data.whichFor} </span>
+                  
+               
               </span>
             </span>
           </div>

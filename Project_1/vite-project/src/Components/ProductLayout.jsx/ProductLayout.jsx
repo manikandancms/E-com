@@ -299,7 +299,7 @@ const ProductCard = ({ id, image, images, title, price, rating, offer, total_no_
         {/* Encouraging Badges Overlay */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           {badges.map((badge, index) => (
-            <span key={index} className={`${badge.color} text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse`}>
+            <span key={index} className={`${badge.color} text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-none`}>
               {badge.text}
             </span>
           ))}
