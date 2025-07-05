@@ -11,7 +11,7 @@ const Header = () => {
   const Data = useOnlineStatus()
 
   const data = useContext(UserContext)
-  console.log(data);
+
   
 
 

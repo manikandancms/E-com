@@ -3,7 +3,7 @@ import UserContext from "../Store/UserContext";
 
 const Footer = () => {
   const data = useContext(UserContext)
-  console.log(data);
+
   
   return (
     <div className="2xl:container mx-auto mt-10">
